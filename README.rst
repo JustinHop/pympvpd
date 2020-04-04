@@ -30,6 +30,7 @@ Features
 * Plan:
     Support configfile and positional args for port, user, logging, paths....
       Use click and click-config-file
+      Done. Needs test
     Start up mpd compliant tcp server, focus on foreground execution,
       with daemon maybe later
 
@@ -44,6 +45,7 @@ Features
 * Ideas:
     Map youtube/bitchute channel to directory
     Map youtube playlists to playlists
+    use aio_mpv_jsonipc
 
 
 
