@@ -27,7 +27,25 @@ Requirements
 Features
 ========
 
-* ToDo: Rewrite me.
+* Plan:
+    Support configfile and positional args for port, user, logging, paths....
+      Use click and click-config-file
+    Start up mpd compliant tcp server, focus on foreground execution,
+      with daemon maybe later
+
+    Add media/urls over mpd
+    Stateful playlist, maybe sqlite, maybe mongdb, maybe pickle
+    Maybe m3u8 playlists with modified tags to support streaming metadata
+    Parse youtube-dl able content and map data, artist=channel, track=title etc
+    Store original url, release date, views, thumbnails, etc
+    Map playback commands
+    Package nicely with systemd units, Dockerfiles, etc
+
+* Ideas:
+    Map youtube/bitchute channel to directory
+    Map youtube playlists to playlists
+
+
 
 Setup
 =====

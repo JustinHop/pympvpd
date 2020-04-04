@@ -57,6 +57,8 @@ extras_require = {
 if os.environ.get('READTHEDOCS', None):
     extras_require['reST'].append('recommonmark')
 
+entry_points = {'console_scripts': ['pympvpd = pympvpd.pympvpd:main']}
+
 setup(name='pympvpd',
       version='0.1.0',
       description='Control MPV over MPD',
@@ -70,5 +72,6 @@ setup(name='pympvpd',
       install_requires=requires,
       include_package_data=True,
       extras_require=extras_require,
+      entry_points=entry_points,
       tests_require=['tox'],
       cmdclass={'test': Tox},)
