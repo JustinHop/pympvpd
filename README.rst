@@ -2,7 +2,7 @@
  pympvpd
 =========
 
-TODO: Rewrite me. Append your package's long description.
+Control an mpv(mplayer/ffmpeg) instance using Music Player Daemon protocol.
 
 
 Status
