@@ -1,0 +1,5 @@
+[run]
+include =
+    pympvpd/*
+omit =
+    pympvpd/tests/*
