@@ -1,22 +1,26 @@
 # -*- coding: utf-8 -*-
 """pympvpd.py"""
 
+from __future__ import print_function
+
 import click
 import click_config_file
 import os
-import logging
 import re
 from pathlib import Path
 
+from .server import PyMPD
 
 try:
     basestring
 except NameError:  # python3
     basestring = str
 
+import logging
 logging.basicConfig()
 
-log = logging.getLogger(__name__)
+logger = logging.getLogger(__name__)
+
 
 def pathinit(base):
     """Creates base directories
@@ -27,8 +31,11 @@ def pathinit(base):
     :param str base: Path for the dir base
 
     """
-    log.debug("pathinit({})".format(base))
-    for dir in [base, os.path.join(base, "playlists"),os.path.join(base, "cache")]:
+    logger.debug("pathinit({})".format(base))
+    for dir in [
+        base, os.path.join(
+            base, "playlists"), os.path.join(
+            base, "cache")]:
         if not os.path.isdir(dir):
             os.makedirs(dir)
     # os.makedirs(os.path.join(base, "playlists"))
@@ -54,32 +61,44 @@ def pathinit(base):
 def main(loglevel, *args, **kwargs):
 
     if re.match(r'debug', loglevel, re.IGNORECASE):
-        log.setLevel(logging.DEBUG)
-        log.debug("Log level set to DEBUG")
+        logger.setLevel(logging.DEBUG)
+        logger.debug("logger level set to DEBUG")
     elif re.match(r'warn', loglevel, re.IGNORECASE):
-        log.setLevel(logging.WARN)
-        log.debug("Log level set to DEBUG")
+        logger.setLevel(logging.WARN)
+        logger.debug("logger level set to DEBUG")
     elif re.match(r'info', loglevel, re.IGNORECASE):
-        log.setLevel(logging.INFO)
-        log.debug("Log level set to INFO")
+        logger.setLevel(logging.INFO)
+        logger.debug("logger level set to INFO")
     elif re.match(r'error', loglevel, re.IGNORECASE):
-        log.setLevel(logging.ERROR)
-        log.debug("Log level set to ERROR")
+        logger.setLevel(logging.ERROR)
+        logger.debug("logger level set to ERROR")
 
-    log.debug("click.get_app_dir(pympvpd): {}".format(
+    logger.debug("click.get_app_dir(pympvpd): {}".format(
                  click.get_app_dir('pympvpd')))
 
     if args is not None:
         count = 0
         for arg in args:
-            log.debug("Arg {} = {}".format(count, arg))
+            logger.debug("Arg {} = {}".format(count, arg))
             count = count + 1
     if kwargs is not None:
         for key, value in kwargs.items():
-            log.debug("Key: {}, Value: {}".format(key, value))
+            logger.debug("Key: {}, Value: {}".format(key, value))
             if key == "base":
                 pathinit(value)
 
+    mpd = PyMPD(**kwargs)
+#   mpd.requestHandler.RegisterCommand(mpdserver.Outputs)
+#   mpd.requestHandler.RegisterCommand(PlayId)
+#   mpd.requestHandler.RegisterCommand(Play)
+#   mpd.requestHandler.Playlist = MpdPlaylist
+
+    try:
+        while mpd.wait(1):
+            pass
+    except KeyboardInterrupt:
+        logger.error("Stopping on interrupt")
+        mpd.quit()
 
 
 if __name__ == '__main__':
