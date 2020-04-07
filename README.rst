@@ -41,6 +41,10 @@ Features
 
     Start up mpd compliant tcp server
 
+      Done.
+
+      Needs test
+
     Add media/urls over mpd
 
     Stateful playlist, maybe sqlite, maybe mongdb, maybe pickle
