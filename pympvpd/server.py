@@ -4,6 +4,7 @@
 import socketserver
 socketserver.TCPServer.allow_reuse_address = True
 
+import aio_mpv_jsonipc
 import time
 import re
 import threading
@@ -19,6 +20,7 @@ import logging
 #    basestring = str
 
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)
 
 class PyPlay(mpdserver.Play):
     def handle_args(self, songPos=0):
@@ -62,35 +64,35 @@ class PyMpdRequestHandler(mpdserver.MpdRequestHandler):
                            'status': {'class': mpdserver.Status, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': ["sonata"]},
                            'stats': {'class': mpdserver.Stats, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'notcommands': {'class': mpdserver.NotCommands, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': ["gmpc"]},
-                           'commands': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'lsinfo': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'tagtypes': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'commands': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'lsinfo': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'tagtypes': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'playlistinfo': {'class': mpdserver.PlaylistInfo, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'playlistid': {'class': mpdserver.PlaylistId, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'listplaylistinfo': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'listplaylistinfo': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'plchanges': {'class': mpdserver.PlChanges, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': ["sonata"]},
                            'plchangesposid': {'class': mpdserver.PlChangesPosId, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'moveid': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'move': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'delete': {'class': mpdserver.Delete, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'moveid': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'move': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'delete': {'class': mpdserver.Delete, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'deleteid': {'class': mpdserver.DeleteId, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'add': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'playid': {'class': PyPlayId, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'play': {'class': PyPlay, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'add': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'playid': {'class': PyPlayId, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'play': {'class': PyPlay, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
                            'password': {'class': mpdserver.Password, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': ["all"]},
-                           'clear': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'stop': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'seek': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'pause': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'next': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'previous': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'random': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'listplaylists': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'load': {'class': None, 'users': [], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
-                           'save': {'class': None, 'users': [], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
-                           'search': {'class': None, 'users': [], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
-                           'rm': {'class': None, 'users': [], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
-                           'setvol': {'class': None, 'users': [], 'group': 'control', 'mpdVersion': "0.12", 'neededBy': None}
+                           'clear': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'stop': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'seek': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'pause': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'next': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'previous': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'random': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'listplaylists': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'load': {'class': None, 'users': ['default'], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
+                           'save': {'class': None, 'users': ['default'], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
+                           'search': {'class': None, 'users': ['default'], 'group': 'read', 'mpdVersion': "0.12", 'neededBy': None},
+                           'rm': {'class': None, 'users': ['default'], 'group': 'write', 'mpdVersion': "0.12", 'neededBy': None},
+                           'setvol': {'class': None, 'users': ['default'], 'group': 'control', 'mpdVersion': "0.12", 'neededBy': None}
                            }
 
     def __init__(self, request, client_address, server):
@@ -240,7 +242,7 @@ class PyMpdRequestHandler(mpdserver.MpdRequestHandler):
             logger.warning("Command '%s' is not supported!" % commandName)
             raise mpdserver.CommandNotSupported(commandName)
         elif not (mpdserver.Frontend.GetDefaultUsername() in self.__SupportedCommands[commandName]['users']
-                  or mpdserver.frontend.getUsername() in self.__SupportedCommands[commandName]['users']):
+                  or frontend.getUsername() in self.__SupportedCommands[commandName]['users']):
             raise mpdserver.UserNotAllowed(commandName, frontend.getUsername())
         else:
             return self.__SupportedCommands[commandName]['class']
@@ -261,9 +263,15 @@ class PyMpdRequestHandler(mpdserver.MpdRequestHandler):
 class PyMPD(mpdserver.MpdServerDaemon):
     """Just reimplement MpdServerDaemon"""
 
+    # def __init__(self, port=6600, host="127.0.0.1", base="/tmp", socket=None):
     def __init__(self, port=6600, host="127.0.0.1", base="/tmp"):
         self.port = port
         self.host = host
+        self.base = base
+        # self.mpv = None
+        # self.socket = socket
+        # if self.socket is not None:
+        #     self.mpv = aio_mpv_jsonipc.MPV(socket=self.socket)
         mpdserver.MpdServerDaemon.__init__(self, self.port, mpdRequestHandler=PyMpdRequestHandler)
                                            # RequestHandlerClass=PyMpdRequestHandler)
 

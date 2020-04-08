@@ -8,6 +8,11 @@ import click_config_file
 import os
 import re
 from pathlib import Path
+# import aio_mpv_jsonipc
+from python_mpv_jsonipc import MPV
+
+import mpdserver
+from .mpv import *
 
 from .server import PyMPD
 
@@ -20,6 +25,9 @@ import logging
 logging.basicConfig()
 
 logger = logging.getLogger(__name__)
+
+# mpv = aio_mpv_jsonipc.MPV(socket='/tmp/mpv.socket')
+mpv = MPV(start_mpv=False, ipc_socket='/tmp/mpv.socket')
 
 
 def pathinit(base):
@@ -42,6 +50,11 @@ def pathinit(base):
     # os.makedirs(os.path.join(base, "cache"))
     return(True)
 
+class Play(mpdserver.Play):
+    def handle_args(self, songPos=0):
+        logger.info("*** Set player to play state ***")
+        mpv.command('set', 'pause', 'no')
+
 
 @click.command()
 @click.option('--loglevel', '-l', default="info", show_default=True,
@@ -57,8 +70,12 @@ def pathinit(base):
               default=str(click.get_app_dir('pympvpd')),
               show_default=True,
               help="Base directory")
+@click.option('--socket', '-s',
+              type=click.Path(exists=True),
+              default=None, show_default=True,
+              help="MPV IPC socket path. This arg assumes already running mpv")
 @click_config_file.configuration_option()
-def main(loglevel, *args, **kwargs):
+def main(loglevel, socket, *args, **kwargs):
 
     if re.match(r'debug', loglevel, re.IGNORECASE):
         logger.setLevel(logging.DEBUG)
@@ -87,10 +104,16 @@ def main(loglevel, *args, **kwargs):
             if key == "base":
                 pathinit(value)
 
+    #mpv = None
+    #if socket is not None:
+    #    mpv = aio_mpv_jsonipc.MPV(socket=socket)
     mpd = PyMPD(**kwargs)
+
+
+
 #   mpd.requestHandler.RegisterCommand(mpdserver.Outputs)
 #   mpd.requestHandler.RegisterCommand(PlayId)
-#   mpd.requestHandler.RegisterCommand(Play)
+    mpd.requestHandler.RegisterCommand(Play)
 #   mpd.requestHandler.Playlist = MpdPlaylist
 
     try:
