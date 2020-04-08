@@ -55,6 +55,10 @@ class Play(mpdserver.Play):
         logger.info("*** Set player to play state ***")
         mpv.command('set', 'pause', 'no')
 
+class Pause(mpdserver.Pause):
+    def handle_args(self, state):
+        logger.info("*** Cycle player pause state ***")
+        mpv.command('cycle', 'pause')
 
 @click.command()
 @click.option('--loglevel', '-l', default="info", show_default=True,
@@ -104,9 +108,6 @@ def main(loglevel, socket, *args, **kwargs):
             if key == "base":
                 pathinit(value)
 
-    #mpv = None
-    #if socket is not None:
-    #    mpv = aio_mpv_jsonipc.MPV(socket=socket)
     mpd = PyMPD(**kwargs)
 
 
@@ -114,6 +115,7 @@ def main(loglevel, socket, *args, **kwargs):
 #   mpd.requestHandler.RegisterCommand(mpdserver.Outputs)
 #   mpd.requestHandler.RegisterCommand(PlayId)
     mpd.requestHandler.RegisterCommand(Play)
+    mpd.requestHandler.RegisterCommand(Pause)
 #   mpd.requestHandler.Playlist = MpdPlaylist
 
     try:
